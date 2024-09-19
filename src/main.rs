@@ -10,9 +10,57 @@ fn main() {
     println!("{}", "\t╔═════════════════════════════════════════════════════╗".blue().bold());
     println!("{}", "\t║            🎯 Welcome to the Number Guess! 🎯       ║".blue().bold());
     println!("{}", "\t╚═════════════════════════════════════════════════════╝".blue().bold());
-    println!("\n{}", "🚀 Select a number between 1-100 🚀".bright_blue().bold().italic());
+    
+    println!("\n{}", "🔧 Please select a difficulty level: ".bright_yellow().bold());
+    println!("{}", "1) 🟢 Easy (10 chances)".green().bold());
+    println!("{}", "2) 🟡 Medium (5 chances)".yellow().bold());
+    println!("{}", "3) 🔴 Hard (1 chance)".red().bold());
+
+    let difficulty = loop {
+        let mut input = String::new();
+        print!("{}", "👉 Enter 1 for Easy, 2 for Medium, or 3 for Hard: ".cyan().bold());
+
+        if io::stdout().flush().is_err() {
+            println!("{}", "⚠️  Failed to flush stdout.".red().bold());
+            continue;
+        }
+        
+        match io::stdin().read_line(&mut input) {
+            Ok(_) => {},
+            Err(_) => {
+                println!("{}", "⚠️  Failed to read input.".red().bold());
+                continue;
+            }
+        }
+        
+        match input.trim() {
+            "1" => break "easy",
+            "2" => break "medium",
+            "3" => break "hard",
+            _ => {
+                println!("{}", "⛔ Invalid selection. Please select 1, 2, or 3.".red().bold().underline());
+                continue;
+            }
+        }
+    };
+
+    let chances = match difficulty {
+        "easy" => 10,
+        "medium" => 5,
+        "hard" => 1,
+        _ => 1
+    };
+
+    println!("\n{}", format!("🌟 You selected '{}' mode! You have {} chance(s).", difficulty, chances).bright_cyan().bold().italic());
+    
+    let mut remaining_chances = chances;
     
     loop {
+        if remaining_chances == 0 {
+            println!("{}", "💀 You ran out of chances! Better luck next time!".red().bold());
+            println!("{}", "🤡 Haha, you really thought you'd win? Too bad!".red().bold().italic());
+            break;
+        }
         
         let mut input = String::new();
         print!("{}", "👉 Enter your guess: ".yellow().bold());
@@ -38,18 +86,20 @@ fn main() {
             }
         };
         
+        remaining_chances -= 1;
+        
         match parsed_input.cmp(&random_number) {
-            Less => println!("{}", "⬇️  Too low! Give it another go!".cyan().bold().italic()),
-            Greater => println!("{}", "⬆️  Too high! Try something smaller!".magenta().bold().italic()),
+            Less => println!("{}", format!("⬇️  Too low! Try again, {} chance(s) remaining!", remaining_chances).cyan().bold().italic()),
+            Greater => println!("{}", format!("⬆️  Too high! Try again, {} chance(s) remaining!", remaining_chances).magenta().bold().italic()),
             Equal => {
                 println!("\n{}", format!("🎉 Congratulations! You guessed the right number: {}", random_number).green().bold().underline());
                 println!("{}", "🌟 Amazing! You're a Number Guessing Master! 🌟".green().bold());
                 break;
             }
         }
+
     }
 
-    println!("\n{}", "👋 Thanks for playing! See you next time!".bright_white().bold().italic());
+    println!("\n{}", "👋 Thanks for playing! See you next time!".white().italic().dimmed());
     println!("{}", "══════════════════════════════════════════".blue().bold());
-
 }
